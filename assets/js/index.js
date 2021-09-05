@@ -55,10 +55,31 @@ cam.addEventListener('play', async () => {
             cam,
             new faceapi.TinyFaceDetectorOptions()
             )
+            //le os traços do meu rosto
+            .withFaceLandmarks()
+            //le a minha expressao facial
+            .withFaceExpressions()
+            //le minha idade e genero
+            .withAgeAndGender()
         const resizedDetections = faceapi.resizeResults(detections, canvasSize)
         //limpa cada frame detectado, deixando so o atual
         canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
         //desenha a deteccao do rosto
         faceapi.draw.drawDetections(canvas, resizedDetections)
+        //desenha as land marks
+        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections)
+        //indica minha possivel expressão facial
+        faceapi.draw.drawFaceExpressions(canvas, resizedDetections)
+        //instanciamos para detectar minha idade e genero
+        resizedDetections.forEach(detection => {
+            //passamos o parametro que queremos detectar
+            const { age, gender, genderProbability} = detection
+            //função para apontar os valores de idade e genero que serão detectados
+            new faceapi.draw.DrawTextField([
+                `${parseInt(age, 10)} years`,
+                `${gender} (${parseInt(genderProbability * 100, 10)})`
+            //pedimos para desenhar e onde desenhar os valores detectados
+            ], detection.detection.box.topRight).draw(canvas)
+        })
     }, 100)
 })
